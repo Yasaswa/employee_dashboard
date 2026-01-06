@@ -72,6 +72,7 @@ export default function Login({ onLogin }) {
                 <div className="login-footer">
                     <p>Mock Credentials:</p>
                     <span>admin / admin123</span>
+                    <span>hr_user / hr123</span>
                 </div>
             </div>
         </div>
