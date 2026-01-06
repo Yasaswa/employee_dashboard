@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import Datatable from "components/DataTable";
+import SearchBar from "components/SearchBar";
 import { statusOptions, genderOptions } from "mockdata";
 import "assets/css/employee_form.css";
 import { Form } from "react-bootstrap";
@@ -25,16 +26,11 @@ function FrmEmployeeListing() {
 
   const [employeeStatus, setEmployeeStatus] = useState("All");
   const [gender, setGender] = useState("All");
-  const [employeeName, setEmployeeName] = useState("");
   const [debouncedName, setDebouncedName] = useState("");
 
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedName(employeeName.trim().toUpperCase());
-    }, 500);
-
-    return () => clearTimeout(handler);
-  }, [employeeName]);
+  const setSearchedValue = useCallback((searchedData) => {
+     setDebouncedName(searchedData);
+  }, []);
 
   const memoisedData = useMemo(() => {
     return employeeData.filter(emp => {
@@ -154,17 +150,7 @@ function FrmEmployeeListing() {
 
           <div className="col-3">
             <div className="row">
-              <div className="col-sm-auto mt-1">
-                <Form.Label className="erp-form-label">Search By Name</Form.Label>
-              </div>
-              <div className="col-sm-7">
-                <Form.Control
-                  type="text"
-                  className="erp_input_field ps-1"
-                  value={employeeName}
-                  onChange={(e) => setEmployeeName(e.target.value.toUpperCase())}
-                />
-              </div>
+              <SearchBar setSearchedValue={setSearchedValue} />
             </div>
           </div>
 
