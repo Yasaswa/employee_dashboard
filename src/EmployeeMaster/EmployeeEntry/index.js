@@ -350,7 +350,7 @@ function FrmEmployeeEntry() {
                                         className="employee-profile-img"
                                     />
 
-                                    <Form.Label className="erp-form-label upload-btn">
+                                    <Form.Label className={`erp-form-label upload-btn ${keyForViewUpdate === 'View' ? 'd-none' : 'display'}`}>
                                         Change Photo
                                         <input
                                             type="file"
