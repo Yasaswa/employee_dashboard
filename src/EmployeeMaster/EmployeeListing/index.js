@@ -138,7 +138,19 @@ function FrmEmployeeListing() {
             </div>
           </div>
 
-          <div className="col-3"></div>
+          <div className="col-3">
+            <div className="row" style={{ 'fontWeight': "bolder" }}>
+              <div className="col-sm-auto mt-1"> <Form.Label className="erp-form-label">Active</Form.Label> <span>
+                {memoisedData.filter(dt => dt.employeeStatus).length}
+              </span> </div>
+              <div className="col-sm-auto mt-1"> <Form.Label className="erp-form-label">In-Active</Form.Label> <span>
+                {memoisedData.filter(dt => !dt.employeeStatus).length}
+              </span> </div>
+              <div className="col-sm-auto mt-1"> <Form.Label className="erp-form-label">Total Records : </Form.Label> <span>
+                {memoisedData.length}
+              </span> </div>
+            </div>
+          </div>
 
           <div className="col-3">
             <div className="row">

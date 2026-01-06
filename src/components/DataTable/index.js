@@ -1,10 +1,11 @@
-import React, { useRef, forwardRef, useReducer, useEffect, useImperativeHandle } from "react";
+import React, { useRef, forwardRef, useReducer, useEffect, useImperativeHandle, useState } from "react";
 import { Table } from "react-bootstrap";
 import { MdModeEdit, MdDelete } from "react-icons/md";
 import { AiFillEye } from "react-icons/ai";
 import { getEmployeeImageMock, today } from "commonFunctions";
 import { useNavigate } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
+import DeleteModal from 'components/Modals/DeleteModal';
 
 const reducer = (state, action) => {
     switch (action.type) {
@@ -36,6 +37,7 @@ const Datatable = forwardRef(({ data }, ref) => {
     debugger
     const tableRef = useRef(null);
     const navigate = useNavigate();
+    const employeeIdRef = useRef(null);
 
     const handlePrint = useReactToPrint({
         content: () => tableRef.current,
@@ -134,8 +136,11 @@ const Datatable = forwardRef(({ data }, ref) => {
     }));
 
     useEffect(() => {
+        employeeIdRef.current = null;
+        handleClose();
         dispatch({ type: "RESET", payload: data });
     }, [data]);
+
 
     const [tableData, dispatch] = useReducer(reducer, data);
 
@@ -145,69 +150,97 @@ const Datatable = forwardRef(({ data }, ref) => {
         });
     };
 
+    const [show, setShow] = useState(false);
+    const handleClose = () => setShow(false);
+
+    const deleteEmployeeRecord = () => {
+        handleClose();
+        dispatch({ type: "REMOVE", employee_id: employeeIdRef.current });
+    }
+
+    useEffect(() => {
+        return (
+            <DeleteModal show={show} closeModal={handleClose} deleteRecord={deleteEmployeeRecord} />
+        )
+    }, [show])
+
     return (
-
-        <Table
-            ref={tableRef}
-            className="erp_table mb-3"
-            responsive
-            bordered
-            striped
-        >
-            <thead className="erp_table_head">
-                <tr>
-                    <th className='erp_table_th text-center' style={{ width: "75px" }}>Action</th>
-                    <th className='erp_table_th text-center' style={{ width: "75px" }}>Sr. No</th>
-                    <th className='erp_table_th text-center' style={{ width: "75px" }}>Employee Id</th>
-                    <th className='erp_table_th text-center' style={{ width: "100px" }}>Employee Image</th>
-                    <th className='erp_table_th text-center'>Employee Name</th>
-                    <th className='erp_table_th text-center'>DOB</th>
-                    <th className='erp_table_th text-center'>State</th>
-                    <th className='erp_table_th text-center'>Gender</th>
-                    <th className='erp_table_th text-center'>Status</th>
-                    <th className='erp_table_th text-center' style={{ width: "130px" }}>Address</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                {tableData.filter(e => !e.is_delete).map((emp, index) => (
-                    <tr key={emp.employee_id}>
-                        <td className='erp_table_td '>
-                            <AiFillEye onClick={() => handleNavigate("View", emp.employee_id)} />
-                            <MdModeEdit onClick={() => handleNavigate("Update", emp.employee_id)} />
-                            <MdDelete onClick={() => dispatch({ type: "REMOVE", employee_id: emp.employee_id })} />
-                        </td>
-
-                        <td className='erp_table_td '>{index + 1}</td>
-                        <td className='erp_table_td '>{emp.employee_id}</td>
-                        <td className="text-center">
-                            <img
-                                src={getEmployeeImageMock(emp.employee_id)}
-                                alt="Employee"
-                                className="employee-tbl-profile-img"
-                            />
-                        </td>
-
-                        <td className='erp_table_td '>{emp.employeeName}</td>
-                        <td className='erp_table_td '>{emp.dateOfBirth}</td>
-                        <td className='erp_table_td '>{emp.employeeState}</td>
-                        <td className='erp_table_td '>{emp.gender}</td>
-                        <td className='erp_table_td '>{emp.employeeStatus === true ? "Active" : "In-Active"}</td>
-                        <td
-                            className="erp_table_td"
-                            style={{
-                                width: "150px",
-                                wordBreak: "break-word",
-                                whiteSpace: "normal"
-                            }}
-                        >
-                            {emp.employeeAddress}
-                        </td>
-
+        <>
+            <Table
+                ref={tableRef}
+                className="erp_table mb-3"
+                responsive
+                bordered
+                striped
+            >
+                <thead className="erp_table_head">
+                    <tr>
+                        <th className='erp_table_th text-center' style={{ width: "75px" }}>Action</th>
+                        <th className='erp_table_th text-center' style={{ width: "75px" }}>Sr. No</th>
+                        <th className='erp_table_th text-center' style={{ width: "75px" }}>Employee Id</th>
+                        <th className='erp_table_th text-center' style={{ width: "100px" }}>Employee Image</th>
+                        <th className='erp_table_th text-center'>Employee Name</th>
+                        <th className='erp_table_th text-center'>DOB</th>
+                        <th className='erp_table_th text-center'>State</th>
+                        <th className='erp_table_th text-center'>Gender</th>
+                        <th className='erp_table_th text-center'>Status</th>
+                        <th className='erp_table_th text-center' style={{ width: "130px" }}>Address</th>
                     </tr>
-                ))}
-            </tbody>
-        </Table>
+                </thead>
+
+                <tbody>
+                    {tableData.filter(e => !e.is_delete).map((emp, index) => (
+                        <tr key={emp.employee_id}>
+                            <td className='erp_table_td '>
+                                <AiFillEye onClick={() => handleNavigate("View", emp.employee_id)} />
+                                <MdModeEdit onClick={() => handleNavigate("Update", emp.employee_id)} />
+                                <MdDelete
+                                    style={{ pointerEvents: show ? "none" : "auto", opacity: show ? 0.5 : 1 }}
+                                    onClick={() => {
+                                        employeeIdRef.current = emp.employee_id;
+                                        setShow(true);
+                                    }}
+                                />
+                            </td>
+
+                            <td className='erp_table_td '>{index + 1}</td>
+                            <td className='erp_table_td '>{emp.employee_id}</td>
+                            <td className="text-center">
+                                <img
+                                    src={getEmployeeImageMock(emp.employee_id)}
+                                    alt="Employee"
+                                    className="employee-tbl-profile-img"
+                                />
+                            </td>
+
+                            <td className='erp_table_td '>{emp.employeeName}</td>
+                            <td className='erp_table_td '>{emp.dateOfBirth}</td>
+                            <td className='erp_table_td '>{emp.employeeState}</td>
+                            <td className='erp_table_td '>{emp.gender}</td>
+                            <td className='erp_table_td '>{emp.employeeStatus === true ? "Active" : "In-Active"}</td>
+                            <td
+                                className="erp_table_td"
+                                style={{
+                                    width: "150px",
+                                    wordBreak: "break-word",
+                                    whiteSpace: "normal"
+                                }}
+                            >
+                                {emp.employeeAddress}
+                            </td>
+
+                        </tr>
+                    ))}
+                </tbody>
+            </Table>
+
+
+            <DeleteModal
+                show={show}
+                closeModal={handleClose}
+                deleteRecord={deleteEmployeeRecord}
+            />
+        </>
     );
 });
 

@@ -13,8 +13,8 @@
     "url": "git+https://github.com/creativetimofficial/ct-material-dashboard-pro-react.git"
   },
   "engines": {
-    "node": "14 || 15 || 16",
-    "npm": ">=6"
+    "node": "24.x",
+    "npm": "10.x"
   },
   "dependencies": {
     "@asseinfo/react-kanban": "2.2.0",
